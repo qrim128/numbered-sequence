@@ -915,7 +915,8 @@
             
             if (squareIndex === expectedSquare.index) {
                 playNumberedSequenceSound('click');
-                $(this).addClass('correct').
+                // REMOVED: .text(numberedSequenceGameState.currentExpectedNumber)
+                $(this).addClass('correct'); 
                 numberedSequenceGameState.playerSequence.push(squareIndex);
                 numberedSequenceGameState.currentExpectedNumber++;
                 
