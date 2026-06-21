@@ -902,49 +902,23 @@
                     
                     numberedSequenceGameState.currentRound++;
                     numberedSequenceGameState.gameActive = false;
-                    $('#numbered-sequence-message').text('Sequence completed correctly!');
                     
                     if (numberedSequenceGameState.currentRound >= numberedSequenceGameState.config.rounds) {
-                        setTimeout(() => { endNumberedSequenceGame(true); }, 1500);
+                        // --- INSTANT SUCCESS REBOOT ---
+                        endNumberedSequenceGame(true);
                     } else {
+                        $('#numbered-sequence-message').text('Sequence completed correctly!');
                         setTimeout(() => { startNumberedSequenceRound(); }, 2000);
                     }
                 }
             } else {
+                // --- INSTANT FAILURE REBOOT ---
                 $(this).addClass('wrong');
-                numberedSequenceGameState.wrongPresses++;
-                playNumberedSequenceSound('penalty');
+                if (numberedSequenceGameState.guessTimer) clearTimeout(numberedSequenceGameState.guessTimer);
+                if (numberedSequenceGameState.timerInterval) clearInterval(numberedSequenceGameState.timerInterval);
                 
-                $('#numbered-sequence-message').text(`Wrong square! Expected number ${numberedSequenceGameState.currentExpectedNumber} (${numberedSequenceGameState.wrongPresses}/${numberedSequenceGameState.config.maxWrongPresses})`);
-                
-                if (numberedSequenceGameState.wrongPresses >= numberedSequenceGameState.config.maxWrongPresses) {
-                    if (numberedSequenceGameState.guessTimer) clearTimeout(numberedSequenceGameState.guessTimer);
-                    if (numberedSequenceGameState.timerInterval) clearInterval(numberedSequenceGameState.timerInterval);
-                    
-                    numberedSequenceGameState.gameActive = false;
-                    numberedSequenceGameState.showingPattern = false;
-                    $('#numbered-sequence-message').text('Too many wrong presses! Game failed.');
-                    playNumberedSequenceSound('failure');
-                    setTimeout(() => { endNumberedSequenceGame(false); }, 1500);
-                    return;
-                }
-                
-                setTimeout(() => {
-                    if (!numberedSequenceGameState.gameStarted || numberedSequenceGameState.wrongPresses >= numberedSequenceGameState.config.maxWrongPresses) return;
-                    if (numberedSequenceGameState.guessTimer) clearTimeout(numberedSequenceGameState.guessTimer);
-                    if (numberedSequenceGameState.timerInterval) clearInterval(numberedSequenceGameState.timerInterval);
-                    
-                    $('.numbered-sequence-square').removeClass('selected correct wrong').text('');
-                    numberedSequenceGameState.playerSequence = [];
-                    numberedSequenceGameState.currentExpectedNumber = 1;
-                    numberedSequenceGameState.gameActive = false;
-                    
-                    setTimeout(() => {
-                        if (numberedSequenceGameState.gameStarted && numberedSequenceGameState.wrongPresses < numberedSequenceGameState.config.maxWrongPresses) {
-                            restartCurrentRound();
-                        }
-                    }, 500);
-                }, 1000);
+                endNumberedSequenceGame(false);
+                return;
             }
         }
 
@@ -958,24 +932,18 @@
             clearAllGameTimers();
             
             if (success) {
-                $('#numbered-sequence-message').text('Numbered sequence test completed successfully!');
+                $('#numbered-sequence-message').text('🏆 MATRIX BREACH SUCCESSFUL!');
                 playNumberedSequenceSound('success');
             } else {
-                const currentMessage = $('#numbered-sequence-message').text();
-                if (!currentMessage.includes('failed') && !currentMessage.includes('Time\'s up')) {
-                    $('#numbered-sequence-message').text('Numbered sequence test failed!');
-                    playNumberedSequenceSound('failure');
-                }
+                $('#numbered-sequence-message').text('❌ FIREWALL LOCKED DOWN!');
+                playNumberedSequenceSound('failure');
             }
             
+            // Redirect immediately back to settings view after a quick 1-second reveal
             setTimeout(() => {
-                $('#numbered-sequence-message').text(success ? "🏆 MATRIX BREACH SUCCESSFUL!" : "❌ FIREWALL LOCKED DOWN!");
-                
-                setTimeout(() => {
-                    $('.minigame-gameplay-elements').hide();
-                    $('#settings-panel').fadeIn(200);
-                }, 2000);
-            }, 2000);
+                $('.minigame-gameplay-elements').hide();
+                $('#settings-panel').fadeIn(200);
+            }, 1000);
         }
 
         function playNumberedSequenceSound(type) {
