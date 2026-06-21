@@ -274,9 +274,9 @@
         }
 
         .numbered-sequence-square.correct {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-color)) !important;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 20px rgba(204, 164, 59, 0.4) !important;
+            background: linear-gradient(135deg, var(--success-color), var(--safe-color)) !important;
+            border-color: var(--success-color);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.7) !important;
             animation: numberedCorrectPulse 0.6s ease-in-out;
             color: white !important;
         }
@@ -445,9 +445,9 @@
             50% { transform: translateY(-10px); }
         }
         @keyframes numberedCorrectPulse {
-            0% { transform: scale(1); box-shadow: 0 0 20px rgba(204, 164, 59, 0.4); }
-            50% { transform: scale(1.15); box-shadow: 0 0 40px rgba(204, 164, 59, 0.4); }
-            100% { transform: scale(1); box-shadow: 0 0 20px rgba(204, 164, 59, 0.4); }
+            0% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 255, 0, 0.7); }
+            50% { transform: scale(1.15); box-shadow: 0 0 40px rgba(0, 255, 0, 0.9); }
+            100% { transform: scale(1); box-shadow: 0 0 20px rgba(0, 255, 0, 0.7); }
         }
         @keyframes numberedWrongShake {
             0% { transform: translateX(0); }
@@ -911,14 +911,11 @@
             
             if (!expectedSquare) return;
             
-            // Added logic to remove the border by applying a style change 
-            // or a specific class when the user interacts with the square
-            $(this).css('border', 'none').addClass('selected');
+            $(this).addClass('selected');
             
             if (squareIndex === expectedSquare.index) {
                 playNumberedSequenceSound('click');
-                $(this).addClass('correct');
-                
+                $(this).addClass('correct').
                 numberedSequenceGameState.playerSequence.push(squareIndex);
                 numberedSequenceGameState.currentExpectedNumber++;
                 
@@ -930,6 +927,7 @@
                     numberedSequenceGameState.gameActive = false;
                     
                     if (numberedSequenceGameState.currentRound >= numberedSequenceGameState.config.rounds) {
+                        // --- INSTANT SUCCESS REBOOT ---
                         endNumberedSequenceGame(true);
                     } else {
                         $('#numbered-sequence-message').text('Sequence completed correctly!');
@@ -937,6 +935,7 @@
                     }
                 }
             } else {
+                // --- INSTANT FAILURE REBOOT ---
                 $(this).addClass('wrong');
                 if (numberedSequenceGameState.guessTimer) clearTimeout(numberedSequenceGameState.guessTimer);
                 if (numberedSequenceGameState.timerInterval) clearInterval(numberedSequenceGameState.timerInterval);
